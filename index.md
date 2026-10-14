@@ -4,7 +4,7 @@ title: Home
 permalink: /
 ---
 
-## Breaking things, one box at a time.
+## Flow over fragmentation.
 
 I document CTF machines and security research here — real attempts, real mistakes, real exploit chains. Not polished tutorials.
 
