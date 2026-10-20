@@ -4,16 +4,24 @@ title: Home
 permalink: /
 ---
 
-## Flow over fragmentation.
+<div class="hero">
+  <h1>Keerthan Singh</h1>
+  <p class="hero-subtitle">Penetration tester documenting real exploit chains — CTF machines, bug bounty finds, and security research.</p>
+  <div class="hero-cta">
+    <a href="/home/writeups/" class="btn btn-primary">Browse Writeups</a>
+    <a href="/home/blog/" class="btn btn-secondary">Read the Blog</a>
+    <a href="/home/about/" class="btn btn-secondary">About Me</a>
+  </div>
+</div>
 
-I document CTF machines and security research here — real attempts, real mistakes, real exploit chains. Not polished tutorials.
-
-- [→ Browse Writeups](/home/writeups/) for full machine walkthroughs
-- [→ Read the Blog](/home/blog/) for general notes and deep dives
-- [→ About Me](/home/about/) if you want to know who's behind this
-
----
-
-### Latest
-- [Management - HackTheBox Writeup](/home/writeups/management/) — OpenAM RCE, GLPI credential decryption, rdiff-backup privesc
-- [Cap - HackTheBox Writeup](/home/writeups/cap/) — IDOR, cleartext FTP creds, Python capability abuse
+<div class="latest-section">
+  <h2>Latest Writeups</h2>
+  <ul class="post-list">
+  {% for post in site.categories.ctf limit:3 %}
+    <li>
+      <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
+      <h3><a class="post-link" href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
+    </li>
+  {% endfor %}
+  </ul>
+</div>
