@@ -243,3 +243,71 @@ blockquote {
   color: #8b949e;
   font-style: italic;
 }
+
+.hero {
+  padding: 60px 0 40px;
+  text-align: left;
+}
+
+.hero h1 {
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  background: linear-gradient(90deg, #f0f6fc, #79c0ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+  font-size: 19px;
+  color: #8b949e;
+  max-width: 600px;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.hero-cta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-decoration: none !important;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: #58a6ff;
+  color: #0d1117 !important;
+}
+
+.btn-primary:hover {
+  background: #79c0ff;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid #30363d;
+  color: #c9d1d9 !important;
+}
+
+.btn-secondary:hover {
+  border-color: #58a6ff;
+  color: #79c0ff !important;
+}
+
+.latest-section {
+  margin-top: 20px;
+  padding-top: 40px;
+  border-top: 1px solid #21262d;
+}
+
+.latest-section h2 {
+  margin-bottom: 20px;
+}
