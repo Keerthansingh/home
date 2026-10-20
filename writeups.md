@@ -1,7 +1,7 @@
----
-layout: page
+--- 
+layout: home
 title: Writeups
-permalink: /writeups/
----
+permalink: /writeups/ 
+--- 
 
 
