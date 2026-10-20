@@ -2,7 +2,7 @@
 layout: page
 title: Home
 permalink: /
----
+--- 
 
 <div class="hero">
   <h1>Keerthan Singh</h1>
