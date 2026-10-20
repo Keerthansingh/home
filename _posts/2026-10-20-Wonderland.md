@@ -39,7 +39,7 @@ Inspecting the page source revealed an image reference pointing to an `/img/` di
 <img src="/img/white_rabbit_1.jpg">
 ```
 
-![Inspecting the page source](/home/assets/img/img_dir.png)
+![Inspecting the page source](/home/assets/img/img dir.png)
 
 Browsing directly to `http://10.129.140.68/img/` gave me a full directory listing:
 
