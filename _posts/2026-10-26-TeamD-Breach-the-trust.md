@@ -5,7 +5,7 @@ categories: [ctf]
 tags: [xxe, mysql, credential-reuse, suid, privilege-escalation, own-ctf]
 ---
 
-TeamD Solutions is a machine I built myself — a self-hosted customer support portal. It simulates a small company's internal ticketing system, reachable over HTTP, SSH, and a directly-exposed MySQL instance. The intended path chains four separate weaknesses together: a leaked legacy config endpoint, an XXE injection in the ticket submission feature, a directly reachable database, and a SUID `find` binary for the final step to root.
+TeamD is a machine I built myself — Hosted on TryHackMe.
 
 ---
 
