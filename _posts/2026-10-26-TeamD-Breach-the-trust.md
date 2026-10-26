@@ -31,7 +31,7 @@ Browsing to the web server landed on a login page for "TeamD Solutions" — a cu
 
 Since no credentials were available yet, a test account was registered through the public signup page.
 
-![Registering a test account](/home/assets/img/create_account.png)
+![Registering a test account](/home/assets/img/create_accound.png)
 
 With an authenticated session in hand, directory brute-forcing was run against the application:
 
