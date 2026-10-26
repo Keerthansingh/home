@@ -17,7 +17,7 @@ A full TCP port scan was run against the target first:
 nmap -sVC -p- 10.128.154.87
 ```
 
-![Full Nmap scan results](/home/assets/img/teamd-1.png)
+![Full Nmap scan results](/home/assets/img/nmap.png)
 
 Three services stood out: SSH on 22, an nginx web server on 80 redirecting to `login.php`, and — notably — MySQL 8.0 listening on 3306 and reachable from outside the host. A database service exposed to the network is always worth keeping in mind for later stages, since it only takes one leaked credential to make use of it.
 
@@ -27,11 +27,11 @@ Three services stood out: SSH on 22, an nginx web server on 80 redirecting to `l
 
 Browsing to the web server landed on a login page for "TeamD Solutions" — a customer support portal.
 
-![TeamD Solutions login page](/home/assets/img/teamd-2.png)
+![TeamD Solutions login page](/home/assets/img/homepage.png)
 
 Since no credentials were available yet, a test account was registered through the public signup page.
 
-![Registering a test account](/home/assets/img/teamd-3.png)
+![Registering a test account](/home/assets/img/create_account.png)
 
 With an authenticated session in hand, directory brute-forcing was run against the application:
 
@@ -39,11 +39,11 @@ With an authenticated session in hand, directory brute-forcing was run against t
 dirb http://10.128.154.87/app/customer/
 ```
 
-![dirb uncovers a hidden /config/ directory](/home/assets/img/teamd-4.png)
+![dirb uncovers a hidden /config/ directory](/home/assets/img/dirb.png)
 
 The discovered config directory contained a readable file, `backup.php`, describing a legacy data migration:
 
-![backup.php leaks internal filesystem paths](/home/assets/img/teamd-5.png)
+![backup.php leaks internal filesystem paths](/home/assets/img/backup_file.png)
 
 This page didn't hand over credentials directly, but it leaked two things that mattered later: the application's real data root (`/var/www/teamd-data`) and the fact that a `deployment.conf` file exists inside its backups directory.
 
@@ -53,11 +53,11 @@ This page didn't hand over credentials directly, but it leaked two things that m
 
 The portal's "Create Support Request" form looked like an ordinary ticket submission UI:
 
-![The new support ticket form](/home/assets/img/teamd-6.png)
+![The new support ticket form](/home/assets/img/xxe-test-1.png)
 
 Intercepting the submission in Burp Suite revealed the form actually posted raw XML to the server, with a `Content-Type` of `application/xml`:
 
-![Burp Suite intercepts the raw XML request](/home/assets/img/teamd-7.png)
+![Burp Suite intercepts the raw XML request](/home/assets/img/xxe-test-2.png)
 
 An application that parses attacker-supplied XML is a strong signal to test for XXE. A Document Type Definition (DTD) was added, defining an external entity that reads a local file via `file://`, targeting the path discovered earlier:
 
@@ -73,11 +73,11 @@ An application that parses attacker-supplied XML is a strong signal to test for 
 </ticket>
 ```
 
-![The modified request with the XXE payload](/home/assets/img/teamd-8.png)
+![The modified request with the XXE payload](/home/assets/img/xxe-test-3.png)
 
 Forwarding this request and viewing the resulting ticket showed the entity had been expanded server-side — the full contents of `deployment.conf` were rendered directly into the ticket:
 
-![XXE successfully exfiltrates deployment.conf](/home/assets/img/teamd-9.png)
+![XXE successfully exfiltrates deployment.conf](/home/assets/img/mysqlcreds.png)
 
 The leaked file contained database credentials and details of the system account the application runs as:
 
@@ -104,7 +104,7 @@ mysql --connect-timeout=5 -h 10.128.154.87 -P 3306 \
   -u TeamDServer -p --ssl=0 SSQLSS
 ```
 
-![Remote MySQL login succeeds, listing tables](/home/assets/img/teamd-10.png)
+![Remote MySQL login succeeds, listing tables](/home/assets/img/mysql-login.png)
 
 Nine tables were present, including `tickets`, `ticket_replies`, `user`, and `audit_logs`. The `tickets` table was the natural next target — a support system often ends up with sensitive debugging or configuration data pasted into a ticket by a well-meaning engineer.
 
@@ -118,7 +118,7 @@ Querying the tickets table directly:
 SELECT * FROM tickets;
 ```
 
-![A ticket's description contains a hashed credential for teamd](/home/assets/img/teamd-11.png)
+![A ticket's description contains a hashed credential for teamd](/home/assets/img/teamd_credentials.png)
 
 One ticket, logged as part of the same legacy migration referenced earlier, included a `[system_auth_backup]` block — evidently left behind as a note rather than cleaned up. It contained a hashed credential pair for the `teamd` system account:
 
@@ -137,7 +137,7 @@ The hash was cracked offline using John the Ripper against the rockyou.txt wordl
 john --format=Raw-MD5 --wordlist=/usr/share/wordlists/rockyou.txt teamd.txt
 ```
 
-![John the Ripper recovers the plaintext password](/home/assets/img/teamd-12.png)
+![John the Ripper recovers the plaintext password](/home/assets/img/teamd_password.png)
 
 The hash cracked almost instantly to `hunter2` — giving a full, working credential pair: `teamd:hunter2`.
 
@@ -151,7 +151,7 @@ With a valid system credential pair in hand, SSH access was straightforward:
 ssh teamd@10.128.154.87
 ```
 
-![SSH login as teamd succeeds, user flag read](/home/assets/img/teamd-13.png)
+![SSH login as teamd succeeds, user flag read](/home/assets/img/userflag.png)
 
 * **User Flag**: `THM{xxe_0ob_l3ak_ssh_key}`
 
@@ -165,7 +165,7 @@ As `teamd`, the next step was checking for exploitable SUID binaries:
 find / -perm -u=s -type f 2>/dev/null
 ```
 
-![The find binary carries the SUID bit](/home/assets/img/teamd-14.png)
+![The find binary carries the SUID bit](/home/assets/img/sudo_perm.png)
 
 A SUID `find` binary is a textbook GTFOBins privilege escalation vector: `find`'s `-exec` flag can spawn an arbitrary command, which inherits `find`'s elevated privileges when `-p` is passed to the shell it launches.
 
@@ -173,7 +173,7 @@ A SUID `find` binary is a textbook GTFOBins privilege escalation vector: `find`'
 find . -exec /bin/sh -p \; -quit
 ```
 
-![A root shell is obtained and the root flag is read](/home/assets/img/teamd-15.png)
+![A root shell is obtained and the root flag is read](/home/assets/img/root_flag.png)
 
 * **Root Flag**: `THM{cheers_mate}`
 
